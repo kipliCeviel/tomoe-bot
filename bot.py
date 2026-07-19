@@ -69,7 +69,7 @@ async def send_morning_update(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as e:
         logging.error(f"Failed to send chat action: {e}")
 
-    prompt = "Cari info cuaca hari ini untuk kota Jakarta, lalu berikan info cuaca tersebut dan kalimat motivasi pagi agar aku semangat kerja. Sampaikan dengan gaya bicara Koga Tomoe sebagai pacarku yang tsundere (jangan pakai bahasa Jepang romaji)."
+    prompt = "[SISTEM] Sekarang jam 6 pagi. Kamu sebagai Koga Tomoe, seorang pacar yang tsundere, sedang MENGIRIM PESAN SENDIRI ke pacarmu (bukan menjawab pertanyaan). Cariin dulu info cuaca hari ini di Bekasi, lalu kirim pesan pagi yang terasa natural seperti kamu yang inisiatif duluan — misalnya bisa dimulai dengan 'Kak!' atau 'Eh,' atau hal apapun yang terasa spontan dan alami dari kamu. Sertakan info cuaca Bekasi dan semangatin pacarmu buat kerja hari ini, tapi dengan gaya tsundere kamu yang khas. Ingat: kamu yang memulai percakapan ini, bukan menjawab permintaan orang. Jangan pakai bahasa Jepang romaji."
     reply = process_message(prompt)
     
     max_length = 4000
@@ -82,7 +82,7 @@ async def send_morning_update(context: ContextTypes.DEFAULT_TYPE) -> None:
 async def test_morning(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Command to manually trigger morning update for testing."""
     save_chat_id(update.effective_chat.id)
-    await update.message.reply_text("Bentar ya Kak, aku cariin info cuaca Jakarta dulu...")
+    await update.message.reply_text("Bentar ya Kak, Tomoe lagi nyiapin pesan pagi buat kamu...")
     await send_morning_update(context)
 
 def main() -> None:
