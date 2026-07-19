@@ -16,6 +16,7 @@ env/
 # Test & debug files
 test_agent.py
 chat_id.txt
+chat_history.json
 
 # OS files
 .DS_Store
