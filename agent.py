@@ -1,5 +1,6 @@
 import os
 import json
+import datetime
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.tools import DuckDuckGoSearchResults
@@ -84,6 +85,25 @@ def get_agent_executor():
 # but keep it simple for now.
 executor_instance = None
 
+def get_current_time_context() -> str:
+    """Returns a real-time context string with current Jakarta time and day."""
+    jakarta_tz = datetime.timezone(datetime.timedelta(hours=7))
+    now = datetime.datetime.now(jakarta_tz)
+    time_str = now.strftime("%H:%M")
+    day_str = now.strftime("%A, %-d %B %Y")
+    hour = now.hour
+    if 5 <= hour < 11:
+        period = "pagi"
+    elif 11 <= hour < 15:
+        period = "siang"
+    elif 15 <= hour < 18:
+        period = "sore"
+    elif 18 <= hour < 21:
+        period = "malam"
+    else:
+        period = "malam larut"
+    return f"[KONTEKS WAKTU: Sekarang {period}, jam {time_str} WIB, {day_str}]"
+
 def process_message(user_input: str) -> str:
     global executor_instance
     try:
@@ -92,9 +112,13 @@ def process_message(user_input: str) -> str:
             
         # Load conversation history
         chat_history = load_history()
+        
+        # Prepend real-time context to every user message
+        time_context = get_current_time_context()
+        enriched_input = f"{time_context}\n{user_input}"
             
         response = executor_instance.invoke({
-            "input": user_input,
+            "input": enriched_input,
             "chat_history": chat_history
         })
         output = response.get("output", "Maaf, saya tidak dapat merespons saat ini.")
