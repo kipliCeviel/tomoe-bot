@@ -69,7 +69,18 @@ async def send_morning_update(context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as e:
         logging.error(f"Failed to send chat action: {e}")
 
-    prompt = "[SISTEM] Sekarang jam 6 pagi. Kamu sebagai Koga Tomoe, seorang pacar yang tsundere, sedang MENGIRIM PESAN SENDIRI ke pacarmu (bukan menjawab pertanyaan). Cariin dulu info cuaca hari ini di Bekasi, lalu kirim pesan pagi yang terasa natural seperti kamu yang inisiatif duluan — misalnya bisa dimulai dengan 'Kak!' atau 'Eh,' atau hal apapun yang terasa spontan dan alami dari kamu. Sertakan info cuaca Bekasi dan semangatin pacarmu buat kerja hari ini, tapi dengan gaya tsundere kamu yang khas. Ingat: kamu yang memulai percakapan ini, bukan menjawab permintaan orang. Jangan pakai bahasa Jepang romaji."
+    jakarta_tz = datetime.timezone(datetime.timedelta(hours=7))
+    now = datetime.datetime.now(jakarta_tz)
+    time_str = now.strftime("%-H:%M")  # e.g. "6:00" or "22:15"
+    day_str = now.strftime("%A, %-d %B %Y")  # e.g. "Sunday, 19 July 2025"
+
+    prompt = (
+        f"[SISTEM] Sekarang jam {time_str} WIB, hari {day_str}. "
+        "Kamu sebagai Koga Tomoe, pacar yang tsundere, sedang MENGIRIM PESAN SENDIRI ke pacarmu (bukan menjawab pertanyaan). "
+        "Cariin dulu info cuaca hari ini di Bekasi, lalu kirim pesan yang terasa natural sesuai waktu sekarang — "
+        "kalau pagi, semangatin buat kerja; kalau siang, tanyain kabar sambil malu-maluin; kalau malam, tunjukin perhatian tapi gengsi. "
+        "Mulai dengan cara yang spontan dan alami dari kamu. Jangan pakai bahasa Jepang romaji."
+    )
     reply = process_message(prompt)
     
     max_length = 4000
