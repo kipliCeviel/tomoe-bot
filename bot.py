@@ -28,8 +28,28 @@ def get_chat_id():
                 return None
     return None
 
+def get_allowed_id() -> int | None:
+    """Returns the whitelisted chat ID from env, or None if not set."""
+    raw = os.getenv("ALLOWED_CHAT_ID", "").strip()
+    if raw.isdigit():
+        return int(raw)
+    return None
+
+def is_allowed(update: Update) -> bool:
+    """Returns True only if the user is the whitelisted owner."""
+    allowed_id = get_allowed_id()
+    if allowed_id is None:
+        return True  # Kalau belum diset, semua bisa akses (untuk setup awal)
+    return update.effective_chat.id == allowed_id
+
+async def myid_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Returns the user's Telegram Chat ID."""
+    await update.message.reply_text(f"Chat ID kamu: `{update.effective_chat.id}`", parse_mode="Markdown")
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
+    if not is_allowed(update):
+        return  # Diam-diam abaikan user lain
     user = update.effective_user
     save_chat_id(update.effective_chat.id)
     await update.message.reply_html(
@@ -38,10 +58,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
+    if not is_allowed(update):
+        return
     await update.message.reply_text("Ngobrol aja santai bareng aku! Kalau butuh info dari internet, nanti aku bantu cariin ya.")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle the user message and send to agent."""
+    if not is_allowed(update):
+        return  # Diam-diam abaikan user lain
     user_message = update.message.text
     save_chat_id(update.effective_chat.id)
     
@@ -119,6 +143,7 @@ def main() -> None:
         logging.warning("JobQueue is not enabled. Daily updates will not work.")
 
     # on different commands - answer in Telegram
+    application.add_handler(CommandHandler("myid", myid_command))  # No whitelist - semua bisa pakai untuk setup
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("testmorning", test_morning))
